@@ -3,6 +3,8 @@ import asyncio
 import pickle
 import logging
 
+from PIL import Image
+
 from client import Client
 
 logger = logging.getLogger()
@@ -31,10 +33,14 @@ def save(client):
     return ClientPickler(client, CLIENT_PICKLE_FILENAME)
 
 
-async def main():
-    logging.basicConfig(level=logging.DEBUG)
-    logger.debug("Starting")
+async def get_image(client):
+    # for future reference only
+    size = await client.get_size()
+    data = await client.get_pixels()
+    return Image.frombytes("RGB", size, data)
 
+
+async def get_client():
     try:
         with open(CLIENT_PICKLE_FILENAME, "rb") as f:
             client = pickle.load(f)
@@ -45,13 +51,19 @@ async def main():
         logging.debug("Created new client")
         with save(client):
             pass
+    return client
 
-    async with client:
+
+async def main():
+    logging.basicConfig(level=logging.DEBUG)
+    logger.debug("Starting")
+
+    async with get_client() as client:
         with save(client):
             canvas = await client.get_pixels()
 
-        with open("canvas.bin", "wb") as f:
-            f.write(canvas)
+            with open("canvas.bin", "wb") as f:
+                f.write(canvas)
 
 
 if __name__ == "__main__":

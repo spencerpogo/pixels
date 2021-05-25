@@ -57,8 +57,8 @@ class Client:
             raise ValueError(f"Unexpected status {r.status} {text}")
 
     async def get_size(self) -> (int, int):
-        # no need to check for ratelimit
-        async with self.sess.get(API + "/get_size", headers=self.headers()) as r:
+        # no need to check for ratelimit or send headers
+        async with self.sess.get(API + "/get_size") as r:
             await self._check_status(r)
             data = await r.json()
             return int(data["width"]), int(data["height"])
