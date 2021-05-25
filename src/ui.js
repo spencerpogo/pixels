@@ -1,7 +1,10 @@
 let ready;
 let PIXELS_WIDTH, PIXELS_HEIGHT;
 let pixelsCanvas;
-let pz;
+
+let w, h, tow, toh;
+let x, y, tox, toy;
+const zoom = 0.01; //zoom step per mouse tick
 
 async function setup() {
   createCanvas(windowWidth, windowHeight);
@@ -18,14 +21,14 @@ async function setup() {
   // Get canvas size
   console.log("Getting size...");
   // get_size is not ratelimited :)
-  const r = await performApiRequest(state, "get_size");
-  const { width, height } = await r.json();
-  PIXELS_WIDTH = width;
-  PIXELS_HEIGHT = height;
-  console.log(`Canvas is ${width}x${height} pixels`);
+  //const r = await performApiRequest(state, "get_size");
+  //const { width, height } = await r.json();
+  PIXELS_WIDTH = 1000;
+  PIXELS_HEIGHT = 2000;
+  console.log(`Canvas is ${PIXELS_WIDTH}x${PIXELS_HEIGHT} pixels`);
 
   // setup image
-  pixelsCanvas = createImage(width, height);
+  pixelsCanvas = createImage(PIXELS_WIDTH, PIXELS_HEIGHT);
   pixelsCanvas.loadPixels();
   for (let x = 0; x < pixelsCanvas.width; x++) {
     for (let y = 0; y < pixelsCanvas.height; y++) {
@@ -34,9 +37,10 @@ async function setup() {
   }
   pixelsCanvas.updatePixels();
 
-  // setup panzoom
-  pz = panZoom();
-  pz.setup(width, height);
+  w = tow = pixelsCanvas.width;
+  h = toh = pixelsCanvas.height;
+  x = tox = w / 2;
+  y = toy = h / 2;
 
   ready = true;
 }
@@ -47,17 +51,48 @@ function windowResized() {
 
 function mouseDragged() {
   if (!ready) return;
-  pz.mouseDragged();
+  tox += mouseX - pmouseX;
+  toy += mouseY - pmouseY;
 }
 
-function mouseWheel(e) {
+function mouseWheel(ev) {
   if (!ready) return;
-  pz.mouseWheel(e);
+
+  var e = -ev.delta;
+
+  if (e > 0) {
+    //zoom in
+    for (var i = 0; i < e; i++) {
+      if (tow > 30 * width) return; //max zoom
+      tox -= zoom * (mouseX - tox);
+      toy -= zoom * (mouseY - toy);
+      tow *= zoom + 1;
+      toh *= zoom + 1;
+    }
+  }
+
+  if (e < 0) {
+    //zoom out
+    for (var i = 0; i < -e; i++) {
+      if (tow < width) return; //min zoom
+      tox += (zoom / (zoom + 1)) * (mouseX - tox);
+      toy += (zoom / (zoom + 1)) * (mouseY - toy);
+      toh /= zoom + 1;
+      tow /= zoom + 1;
+    }
+  }
 }
 
 function draw() {
   background(0);
   if (!ready) return;
 
-  pz.drawImage(pixelsCanvas);
+  //tween/smooth motion
+  const tweenAmt = 0.1;
+  x = lerp(x, tox, tweenAmt);
+  y = lerp(y, toy, tweenAmt);
+  w = lerp(w, tow, tweenAmt);
+  h = lerp(h, toh, tweenAmt);
+
+  image(pixelsCanvas, x - w / 2, y - h / 2, w, h);
 }
