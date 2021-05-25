@@ -38,6 +38,7 @@ async def api_proxy(req: web.Request) -> web.Response:
             )
 
 
+app.add_routes([web.static("/src", "src")])
 app.add_routes(routes)
 
 
