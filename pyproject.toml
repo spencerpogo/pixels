@@ -1,0 +1,16 @@
+[tool.poetry]
+name = "pixels"
+version = "0.1.0"
+description = "A frontend for https://pixels.pythondiscord.com"
+authors = ["Scoder12 <34356756+Scoder12@users.noreply.github.com>"]
+license = "AGPL-3.0-only"
+
+[tool.poetry.dependencies]
+python = "^3.9"
+aiohttp = "^3.7.4"
+
+[tool.poetry.dev-dependencies]
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
