@@ -133,7 +133,7 @@ async def main():
     client = await get_client()
     async with client:
         if img_url.startswith("http://") or img_url.startswith("https://"):
-            im = await download_image(img_url)
+            im = await download_image(client, img_url)
         else:
             im = Image.open(img_url)
         w, h = im.size
