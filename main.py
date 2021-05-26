@@ -97,9 +97,9 @@ class Worker:
         cy = h // 2
         # Find pixels closest to center first
         for yoff in range(h):
-            y = cy + (1 if y % 2 == 0 else -1) * yoff // 2
+            y = cy + (1 if yoff % 2 == 0 else -1) * yoff // 2
             for xoff in range(w):
-                x = cx + (1 if x % 2 == 0 else -1) * xoff // 2
+                x = cx + (1 if xoff % 2 == 0 else -1) * xoff // 2
                 if self.canvas.getpixel((self.x + x, self.y + y)) != self.im.getpixel(
                     (x, y)
                 ):
