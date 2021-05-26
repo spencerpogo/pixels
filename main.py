@@ -127,13 +127,13 @@ class Worker:
         while len(checked) != total_pixels:
             x = random.randint(0, w - 1)
             y = random.randint(0, h - 1)
-            # print((self.x + x, self.y + y))
+            canl = (self.x + x, self.y + y)
             if (x, y) in checked:
                 continue
-            now = self.canvas.getpixel((self.x + x, self.y + y))
+            now = self.canvas.getpixel(canl)
             target = self.im.getpixel((x, y))
             if now != target:
-                return (x, y, target)
+                return (*canl, target)
             checked.add((x, y))
         raise ValueError("done")
 
