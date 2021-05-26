@@ -93,8 +93,13 @@ class Worker:
 
     def find_loc(self):
         w, h = self.im.size
-        for y in range(0, h):
-            for x in range(0, w):
+        cx = w // 2
+        cy = h // 2
+        # Find pixels closest to center first
+        for yoff in range(h):
+            y = cy + (1 if y % 2 == 0 else -1) * yoff // 2
+            for xoff in range(w):
+                x = cx + (1 if x % 2 == 0 else -1) * xoff // 2
                 if self.canvas.getpixel((self.x + x, self.y + y)) != self.im.getpixel(
                     (x, y)
                 ):
