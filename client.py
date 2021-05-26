@@ -79,7 +79,7 @@ class Client:
         l = self.get_ratelimit(method)
         if l.remaining > 0:
             return 0
-        return max(0, now() - l.reset_at)
+        return max(0, l.reset_at - now())
 
     async def wait_for_ratelimit(self, method):
         wait = self.time_till_next_request(method)
@@ -104,10 +104,10 @@ class Client:
             json={"x": x, "y": y, "rgb": rgb},
             headers=self.headers(),
         ) as r:
-            await self.check_status(r)
+            await self._check_status(r)
             self._update_ratelimit(r, "set_pixel")
             j = await r.json()
-            logging.debug(f"set_pixel response: {j!r}")
+            logging.info(f"set_pixel response: {j!r}")
             return j
 
     async def set_pixel(self, x, y, rgb):
@@ -115,7 +115,7 @@ class Client:
         return await self._set_pixel(x, y, rgb)
 
     async def _get_pixels(self):
-        logger.info("Reading canvas...")
+        logger.debug("Reading canvas...")
         async with self.sess.get(API + "/get_pixels", headers=self.headers()) as r:
             await self._check_status(r)
             self._update_ratelimit(r, "get_pixels")
