@@ -2,6 +2,7 @@ from os import environ
 import asyncio
 import pickle
 import logging
+import random
 import sys
 from io import BytesIO
 
@@ -121,18 +122,19 @@ class Worker:
 
     def find_loc(self):
         w, h = self.im.size
-        cx = w // 2
-        cy = h // 2
-        # Find pixels closest to center first
-        for yoff in range(h):
-            y = cy + (1 if yoff % 2 == 0 else -1) * yoff // 2
-            for xoff in range(w):
-                x = cx + (1 if xoff % 2 == 0 else -1) * xoff // 2
-                pix = self.im.getpixel((x, y))
-                l = (self.x + x, self.y + y)
-                if self.canvas.getpixel(l) != pix:
-                    return (*l, pix)
-        # done
+        total_pixels = w * h
+        checked = set()
+        while len(checked) != total_pixels:
+            x = random.randint(0, w - 1)
+            y = random.randint(0, h - 1)
+            # print((self.x + x, self.y + y))
+            if (x, y) in checked:
+                continue
+            now = self.canvas.getpixel((self.x + x, self.y + y))
+            target = self.im.getpixel((x, y))
+            if now != target:
+                return (x, y, target)
+            checked.add((x, y))
         raise ValueError("done")
 
     async def place_thread(self):
