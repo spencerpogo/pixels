@@ -88,7 +88,7 @@ class Worker:
 
     async def canvas_thread(self):
         while True:
-            await asyncio.sleep(5)
+            await asyncio.sleep(2)
             await self.canvas_and_progress()
 
     def find_loc(self):
@@ -100,41 +100,47 @@ class Worker:
             y = cy + (1 if yoff % 2 == 0 else -1) * yoff // 2
             for xoff in range(w):
                 x = cx + (1 if xoff % 2 == 0 else -1) * xoff // 2
-                if self.canvas.getpixel((self.x + x, self.y + y)) != self.im.getpixel(
-                    (x, y)
-                ):
-                    return x, y
+                pix = self.im.getpixel((x, y))
+                l = (self.x + x, self.y + y)
+                if self.canvas.getpixel(l) != pix:
+                    return (*l, pix)
         # done
         raise ValueError("done")
 
     async def place_thread(self):
         while True:
-            x, y = self.find_loc()
-            pix = self.im.getpixel((x, y))
-            await self.client.set_pixel(self.x + x, self.y + y, rgb_to_hex(pix))
+            x, y, pix = self.find_loc()
+            await self.client.set_pixel(x, y, rgb_to_hex(pix))
             self.canvas.putpixel((x, y), pix)
             self.save()
+
+
+async def download_image(client, img_url):
+    async with client.sess.get(img_url) as r:
+        await client._check_status(r)
+        return Image.open(BytesIO(await r.read())).convert("RGB")
 
 
 async def main():
     logging.basicConfig(level=logging.INFO)
     args = sys.argv[1:]
     if len(args) < 3:
-        print(f"Usage: {sys.argv[0]} <x> <y> <image_url>", file=sys.stderr)
+        print(f"Usage: {sys.argv[0]} <x> <y> <image_url / img_path>", file=sys.stderr)
         sys.exit(1)
     [x, y, img_url] = args
     x = int(x)
     y = int(y)
     client = await get_client()
     async with client:
-        async with client.sess.get(img_url) as r:
-            await client._check_status(r)
-            img = Image.open(BytesIO(await r.read())).convert("RGB")
-        w, h = img.size
+        if img_url.startswith("http://") or img_url.startswith("https://"):
+            im = await download_image(img_url)
+        else:
+            im = Image.open(img_url)
+        w, h = im.size
         print(f"Loaded image, {w}x{h} = {w * h} pixels")
         # await client.set_pixel(x + 5, y + 5, rgb_to_hex(img.getpixel((5, 5))))
         # save_client(client)
-        worker = Worker(client, img, x, y)
+        worker = Worker(client, im, x, y)
         await worker.init()
         await worker.canvas_and_progress()
         asyncio.get_event_loop().create_task(worker.canvas_thread())
