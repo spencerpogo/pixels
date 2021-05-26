@@ -112,7 +112,7 @@ class Worker:
             x, y = self.find_loc()
             pix = self.im.getpixel((x, y))
             await self.client.set_pixel(self.x + x, self.y + y, rgb_to_hex(pix))
-            self.canvas = self.canvas.putpixel((x, y), pix)
+            self.canvas.putpixel((x, y), pix)
             self.save()
 
 
