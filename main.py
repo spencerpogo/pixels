@@ -54,15 +54,16 @@ class Worker:
     def save(self):
         save_client(self.client)
 
-    def bad_pixels(self):
+    def is_loc_good(self, canvas, x, y):
+        return canvas.getpixel((self.x + x, self.y + y)) == self.im.getpixel((x, y))
+
+    def good_pixels(self):
         w, h = self.im.size
         good = 0
         bad = 0
         for y in range(0, h):
             for x in range(0, w):
-                if self.canvas.getpixel((self.x + x, self.y + y)) == self.im.getpixel(
-                    (x, y)
-                ):
+                if self.is_loc_good(self.canvas, x, y):
                     good += 1
                 else:
                     bad += 1
@@ -70,10 +71,36 @@ class Worker:
             raise ValueError("wtf")
         return good, good + bad
 
-    def print_progress(self):
-        good, total = self.bad_pixels()
+    def print_progress(self, oldcanvas):
+        w, h = self.im.size
+        new_events = []
+        good = 0
+        bad = 0
+        for y in range(0, h):
+            for x in range(0, w):
+                is_good = self.is_loc_good(self.canvas, x, y)
+                canx = self.x + x
+                cany = self.y + y
+
+                if oldcanvas is not None:
+                    old = oldcanvas.getpixel((canx, cany))
+                    new = self.canvas.getpixel((canx, cany))
+                    if old != new:
+                        status = "\u001b[32massist" if is_good else "\u001b[31mattack"
+                        new_events.append(
+                            f"{status} @ {canx},{cany} {rgb_to_hex(old)}->{rgb_to_hex(new)}\u001b[0m"
+                        )
+                if is_good:
+                    good += 1
+                else:
+                    bad += 1
+        if good + bad != w * h:
+            raise ValueError("wtf")
+        total = good + bad
+
         percent = (good / total) * 100
-        print(f"Progress: {good} / {total} ({percent:.2g}%)")
+        new_text = ", ".join(new_events) if len(new_events) else ""
+        print(f"Progress: {good} / {total} {percent:.2g}% {new_text}")
 
     async def get_canvas(self):
         data = await self.client.get_pixels()
@@ -82,9 +109,10 @@ class Worker:
         self.canvas = im
 
     async def canvas_and_progress(self):
+        oldcanvas = self.canvas
         await self.get_canvas()
         self.canvas.save("test.png")
-        self.print_progress()
+        self.print_progress(oldcanvas)
 
     async def canvas_thread(self):
         while True:
@@ -109,7 +137,13 @@ class Worker:
 
     async def place_thread(self):
         while True:
+            # Don't find loc till we can place
+            while not self.client.can_make_request("set_pixel"):
+                await asyncio.sleep(1)
             x, y, pix = self.find_loc()
+            print(
+                f"Placing: ({x},{y}) {rgb_to_hex(self.canvas.getpixel((x, y)))}->{rgb_to_hex(pix)}",
+            )
             await self.client.set_pixel(x, y, rgb_to_hex(pix))
             self.canvas.putpixel((x, y), pix)
             self.save()
