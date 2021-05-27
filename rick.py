@@ -163,6 +163,7 @@ async def task_loop():
             y = task["y"]
             print(f"Task from project {project}: Placing {color} at {x},{y}")
             await client.set_pixel(x, y, color)
+            save_client(client)
 
             async with client.sess.post(
                 CHURCH + f"/api/submit_task?key={client.key}", json=task
