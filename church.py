@@ -23,7 +23,7 @@ async def main():
             async with client.sess.post(
                 "https://decorator-factory.su/submit_task", json={"task_id": tid}
             ) as r:
-                print(await r.json())
+                print(r.status, await r.text())
 
 
 loop = asyncio.get_event_loop()
