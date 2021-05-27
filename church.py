@@ -18,7 +18,7 @@ async def main():
                 col = latest_task["color"]
             print(f"Starting task {tid}. Fill in {x},{y} with #{col}")
             await client.set_pixel(x, y, col)
-            save(client)
+            save_client(client)
             # await asyncio.sleep(5)
             async with client.sess.post(
                 "https://decorator-factory.su/submit_task", json={"task_id": tid}
