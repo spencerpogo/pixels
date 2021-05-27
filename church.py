@@ -10,6 +10,10 @@ async def main():
             print("Getting task...")
             async with client.sess.get("https://decorator-factory.su/tasks") as r:
                 data = await r.json()
+                if len(data) == 0:
+                    print("no tasks...")
+                    await asyncio.sleep(5)
+                    continue
                 latest_task = data[0]
                 print(latest_task)
                 tid = latest_task["id"]
