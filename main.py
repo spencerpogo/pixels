@@ -135,14 +135,19 @@ class Worker:
             if now != target:
                 return (*canl, target)
             checked.add((x, y))
-        raise ValueError("done")
+        return None
 
     async def place_thread(self):
         while True:
             # Don't find loc till we can place
             while not self.client.can_make_request("set_pixel"):
                 await asyncio.sleep(1)
-            x, y, pix = self.find_loc()
+            l = self.find_loc()
+            if l is None:
+                print("nothing to do, waiting")
+                await asyncio.sleep(5)
+                continue
+            x, y, pix = l
             print(
                 f"Placing: ({x},{y}) {rgb_to_hex(self.canvas.getpixel((x, y)))}->{rgb_to_hex(pix)}",
             )
