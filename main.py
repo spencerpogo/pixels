@@ -77,9 +77,11 @@ class Worker:
         new_events = []
         good = 0
         bad = 0
+        worm = 0
         for y in range(0, h):
             for x in range(0, w):
-                is_good = self.is_loc_good(self.canvas, x, y)
+                v = self.canvas.getpixel((self.x + x, self.y + y))
+                is_good = v == self.im.getpixel((x, y))
                 canx = self.x + x
                 cany = self.y + y
 
@@ -94,14 +96,17 @@ class Worker:
                 if is_good:
                     good += 1
                 else:
-                    bad += 1
+                    if rgb_to_hex(v).upper() == "FF8983":
+                        worm += 1
+                    else:
+                        bad += 1
         if good + bad != w * h:
             raise ValueError("wtf")
         total = good + bad
 
         percent = (good / total) * 100
         new_text = ", ".join(new_events) if len(new_events) else ""
-        print(f"Progress: {good} / {total} {percent:.2g}% {new_text}")
+        print(f"Progress: {good} / {total} {percent:.2g}% {worm} worm {new_text}")
 
     async def get_canvas(self):
         data = await self.client.get_pixels()
@@ -132,7 +137,7 @@ class Worker:
                 continue
             now = self.canvas.getpixel(canl)
             target = self.im.getpixel((x, y))
-            if now != target:
+            if now != target and rgb_to_hex(now).upper() != "FF8983":
                 return (*canl, target)
             checked.add((x, y))
         return None
