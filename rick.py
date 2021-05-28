@@ -146,7 +146,7 @@ async def task_loop():
                 await asyncio.sleep(1)
 
             print("Getting task...")
-            async with client.sess.post(
+            async with client.sess.get(
                 CHURCH + f"/api/get_task?key={client.key}"
             ) as r:
                 await client._check_status(r)
