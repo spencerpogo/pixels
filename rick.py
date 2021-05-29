@@ -58,7 +58,7 @@ class Client:
         global bad
         if r.status != 200:
             try:
-                text = repr(await r.text())
+                text = await r.json()
                 bad += 1
                 de = text['detail']
                 return print("["+Fore.RED + "-" + Fore.RESET + "] " + f"Error: {de}")
