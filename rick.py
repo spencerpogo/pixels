@@ -55,16 +55,17 @@ class Client:
         return {"authorization": f"Bearer {self.token}"}
 
     async def _check_status(self, r):
+        global bad
         if r.status != 200:
             try:
                 text = repr(await r.text())
                 bad += 1
-                de = text['details']
+                de = text['detail']
                 return print("["+Fore.RED + "-" + Fore.RESET + "] " + f"Error: {de}")
             except:
                 text = traceback.format_exc()
-                aa = text["detail"]
-                return print(f"Unexpected status {r.status} {aa}")
+                print(text)
+                return print(f"Unexpected status {r.status}")
 
     async def get_size(self) -> (int, int):
         # no need to check for ratelimit or send headers
