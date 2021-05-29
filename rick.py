@@ -142,8 +142,8 @@ async def get_client():
         with open(PICKLE_FILENAME, "rb") as f:
             client = pickle.load(f)
     except FileNotFoundError:
-        token = input("["+Fore.BLUE + "i" + Fore.RESET + "] " + f"Enter your token from {API}/authorize > ")
-        key = input("["+Fore.BLUE + "i" + Fore.RESET + "] " + f"Enter your rick church API key> ")
+        token = input("["+Fore.CYAN + "i" + Fore.RESET + "] " + f"Enter your token from {API}/authorize > ")
+        key = input("["+Fore.CYAN + "i" + Fore.RESET + "] " + f"Enter your rick church API key> ")
         client = Client(token, key)
         save_client(client)
     return client
@@ -176,11 +176,11 @@ async def task_loop():
             print("\033[1m" + f"Welcome {username},".center(os.get_terminal_size().columns))
             print(f"You've sumitted {totalTasks} good tasks over all time!".center(os.get_terminal_size().columns))
             print(f"Within the current session, you've submitted {curSesTotal} total tasks, {percent}% of them being good!".center(os.get_terminal_size().columns))
-            print("["+Fore.YELLOW + "~" + Fore.RESET+ "] " + "Waiting for ratelimit...")
+            print("["+ Fore.CYAN + "i" + Fore.RESET+ "] " + "Waiting for ratelimit...")
             while not client.can_make_request("set_pixel"):
                 await asyncio.sleep(1)
 
-            print("["+Fore.YELLOW + "~" + Fore.RESET+ "] " + "Getting task...")
+            print("[" + Fore.CYAN + "i" + Fore.RESET+ "] " + "Getting task...")
             async with client.sess.get(
                 CHURCH + f"/api/get_task?key={client.key}"
             ) as r:
