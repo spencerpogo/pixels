@@ -64,7 +64,6 @@ class Client:
                 return print("["+Fore.RED + "-" + Fore.RESET + "] " + f"Error: {de}")
             except:
                 text = traceback.format_exc()
-                print(text)
                 return print(f"Unexpected status {r.status}")
 
     async def get_size(self) -> (int, int):
