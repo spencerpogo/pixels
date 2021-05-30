@@ -63,8 +63,8 @@ def get_percent(project, canvas):
     w, h = im.size
     # -- NUMPY OPTIMIZATIONS --
     target_area = canvas.crop((project.x, project.y, project.x + w, project.y + h))
-    if np.array_equal(np.asarray(target_area), np.asarray(im)):
-        return 100
+    #if np.array_equal(np.asarray(target_area), np.asarray(im)):
+        #return 100
     # -- END NUMPY OPTIMIZATIONS --
 
     good = 0
