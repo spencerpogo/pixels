@@ -166,8 +166,8 @@ async def task_loop():
             # clear the console
             os.system('cls' if os.name == 'nt' else 'clear')
             totalTasks = goodOverall + bad
-            if bad >= 1:
-                percent = (good/bad)*100
+            if bad >= 1 and curSesTotal >= 1:
+                percent = (good/curSesTotal)*100
             else:
                 percent = 100.00 
             if percent > 100.00:
