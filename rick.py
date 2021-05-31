@@ -174,7 +174,7 @@ async def task_loop():
                 percent = 100.00
             curSesTotal = good + bad
             print("\033[1m" + f"Welcome {username},".center(os.get_terminal_size().columns))
-            print(f"You've sumitted {totalTasks} good tasks over all time!".center(os.get_terminal_size().columns))
+            print(f"You've submitted {goodOverall} good tasks over all time!".center(os.get_terminal_size().columns))
             print(f"Within the current session, you've submitted {curSesTotal} total tasks, {percent}% of them being good!".center(os.get_terminal_size().columns))
             print("["+ Fore.CYAN + "i" + Fore.RESET+ "] " + "Waiting for ratelimit...")
             while not client.can_make_request("set_pixel"):
