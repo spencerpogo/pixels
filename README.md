@@ -13,4 +13,4 @@
 2. Clone our repository: `git clone https://github.com/Scoder12/pixels`
 3. Install the required dependencies `pip install -r requirements.txt`
 4. Acquire a Rick Church API key (ask one of our priests!) 
-5. Run `python3 rick.py`, input your Pixels and Church keys, which will be saved to a .pickle file. If you don't have python, ask our priests for a pyinstaller exe file. 
+5. Run `python3 rick.py`, input your Pixels and Church keys, which will be saved to a .pickle file. 
